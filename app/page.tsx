@@ -177,7 +177,7 @@ export default function EnterpriseAI() {
             <div className="text-xs font-semibold text-foreground/50 uppercase tracking-wider mb-3 px-2">Agents Status</div>
             <div className="space-y-1.5">
               {Object.keys(activeAgents).map((agent) => (
-                <button key={agent} onClick={() => toggleAgent(agent as keyof typeof activeAgents)} className="flex items-center justify-between w-full p-2.5 hover:bg-surface-light rounded-lg transition-all duration-200 group">
+                <button key={agent} onClick={() => toggleAgent(agent as keyof typeof activeAgents)} className="flex items-center justify-between w-full p-2.5 rounded-lg transition-all duration-200 group hover:[background-color:var(--surface-light)]">
                   <span className="text-sm flex items-center gap-2 capitalize text-foreground/80 group-hover:text-foreground">
                     {AGENT_ICONS[agent as keyof typeof AGENT_ICONS]} 
                     {agent.replace('_', ' ')}
@@ -189,7 +189,7 @@ export default function EnterpriseAI() {
           </div>
         </nav>
         <div className="p-4 border-t border-border space-y-2">
-          <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 text-sm w-full p-2.5 rounded-lg hover:bg-surface-light transition-all duration-200">
+          <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 text-sm w-full p-2.5 rounded-lg transition-all duration-200 hover:[background-color:var(--surface-light)]">
             <Settings size={18} className="text-primary" /> 
             <span>Settings</span>
           </button>
