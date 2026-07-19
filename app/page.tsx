@@ -334,7 +334,7 @@ export default function EnterpriseAI() {
               className="w-full pl-6 pr-14 py-4 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-inner text-gray-700"
               disabled={isLoading}
             />
-            <button onClick={handleSend} disabled={isLoading || !input.trim()} className="absolute right-3 p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition shadow-sm">
+            <button type="button" onClick={handleSend} disabled={isLoading || !input.trim()} className="absolute right-3 p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition shadow-sm">
               <Send size={18} className={isLoading ? "animate-pulse" : ""} />
             </button>
           </div>
