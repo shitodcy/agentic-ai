@@ -159,7 +159,7 @@ export default function EnterpriseAI() {
       <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 hidden md:flex z-20 shadow-xl">
         <div className="p-5 flex items-center gap-3 border-b border-slate-800">
           <Database className="text-blue-500" size={24} />
-          <h1 className="text-lg font-bold text-white tracking-wide">Nusantara OmniAgent</h1>
+          <h1 className="text-lg font-bold text-white tracking-wide">OmniAgent</h1>
         </div>
         <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
           <button onClick={handleNewChat} className="flex items-center gap-3 w-full p-3 bg-blue-600 text-white rounded-lg transition hover:bg-blue-700 shadow-sm">
