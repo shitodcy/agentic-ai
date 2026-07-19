@@ -97,7 +97,8 @@ export default function EnterpriseAI() {
     try {
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+                   "ngrok-skip-browser-warning": "true"},
         body: JSON.stringify({
           message: textToSubmit,
           session_id: "demo-session-local",
