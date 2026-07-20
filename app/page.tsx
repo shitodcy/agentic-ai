@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { 
   Send, User, Bot, Menu, Settings, MessageSquare, 
   Database, Activity, CheckCircle2, X, ShieldCheck, Timer,
-  Briefcase, Headset, Package, Wallet, Pencil // Tambahan Ikon Pencil
+  Briefcase, Headset, Package, Wallet, Pencil
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -24,7 +24,7 @@ const WORKFLOW_STEPS = [
   { id: 1, text: "Supervisor Agent: Analyzing User Intent..." },
   { id: 2, text: "Routing: Delegating to Specialist Agent..." },
   { id: 3, text: "Execution: Querying Database / RAG Tool..." },
-  { id: 4, text: "Synthesizing: Sanitizing Output..." }
+  { id: 4, text: "Synthesizing: Sanitizing & Formatting Output..." }
 ];
 
 const AGENT_ICONS = {
@@ -42,7 +42,6 @@ export default function EnterpriseAI() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [apiUrl, setApiUrl] = useState("");
   
-  // STATE EDITING
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
 
@@ -55,12 +54,16 @@ export default function EnterpriseAI() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // Ambil URL dari Local Storage saat komponen di-load
+  useEffect(() => {
+    const savedUrl = localStorage.getItem("omniagent_api_url");
+    if (savedUrl) {
+      setApiUrl(savedUrl);
+    }
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading, activeStep, editingIndex]);
 
   const handleNewChat = () => {
@@ -72,15 +75,15 @@ export default function EnterpriseAI() {
 
   const saveSettings = (e: React.FormEvent) => {
     e.preventDefault();
+    localStorage.setItem("omniagent_api_url", apiUrl);
     setIsSettingsOpen(false);
-    alert("Konfigurasi API berhasil disimpan!");
+    alert("Konfigurasi API berhasil disimpan di browser!");
   };
 
   const toggleAgent = (agent: keyof typeof activeAgents) => {
     setActiveAgents(prev => ({ ...prev, [agent]: !prev[agent] }));
   };
 
-  // REFACTOR: Fungsi untuk mengirim pesan (Bisa dari Input baru atau Edit)
   const submitMessage = async (textToSubmit: string, currentHistory: Message[]) => {
     if (!textToSubmit.trim()) return;
 
@@ -97,11 +100,13 @@ export default function EnterpriseAI() {
     try {
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json",
-                   "ngrok-skip-browser-warning": "true"},
+        headers: { 
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true" // WAJIB ADA UNTUK BYPASS NGROK
+        },
         body: JSON.stringify({
           message: textToSubmit,
-          session_id: "demo-session-local",
+          session_id: "demo-session-vercel",
         }),
       });
 
@@ -132,7 +137,7 @@ export default function EnterpriseAI() {
       clearInterval(stepInterval);
       setMessages((prev) => [
         ...prev,
-        { role: "ai", content: `**Error:** Koneksi ke AI Engine terputus. Pastikan URL Ngrok valid.`, agent: "System Error" },
+        { role: "ai", content: `**System Error:** ${String(error)}. Pastikan Backend Colab aktif dan URL valid.`, agent: "Error Handler" },
       ]);
     } finally {
       setIsLoading(false);
@@ -146,7 +151,6 @@ export default function EnterpriseAI() {
 
   const handleEditSubmit = (index: number) => {
     if (!editValue.trim()) return;
-    // Potong chat history sampai sebelum index pesan yang diedit
     const historyUpToIndex = messages.slice(0, index);
     setEditingIndex(null);
     submitMessage(editValue, historyUpToIndex);
@@ -158,11 +162,11 @@ export default function EnterpriseAI() {
       {/* SIDEBAR */}
       <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 hidden md:flex z-20 shadow-xl">
         <div className="p-5 flex items-center gap-3 border-b border-slate-800">
-          <Bot className="text-blue-500" size={24} />
+          <Database className="text-blue-500" size={24} />
           <h1 className="text-lg font-bold text-white tracking-wide">OmniAgent</h1>
         </div>
         <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
-          <button onClick={handleNewChat} className="flex items-center gap-3 w-full p-3 bg-blue-600 text-white rounded-lg transition hover:bg-blue-700 shadow-sm">
+          <button type="button" onClick={handleNewChat} className="flex items-center gap-3 w-full p-3 bg-blue-600 text-white rounded-lg transition hover:bg-blue-700 shadow-sm">
             <MessageSquare size={18} />
             <span className="text-sm font-medium">New Chat</span>
           </button>
@@ -171,7 +175,7 @@ export default function EnterpriseAI() {
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Omni-Agents Status</div>
             <div className="space-y-1">
               {Object.keys(activeAgents).map((agent) => (
-                <button key={agent} onClick={() => toggleAgent(agent as keyof typeof activeAgents)} className="flex items-center justify-between w-full p-2 hover:bg-slate-800 rounded-md transition">
+                <button type="button" key={agent} onClick={() => toggleAgent(agent as keyof typeof activeAgents)} className="flex items-center justify-between w-full p-2 hover:bg-slate-800 rounded-md transition">
                   <span className="text-sm flex items-center gap-2 capitalize">
                     {AGENT_ICONS[agent as keyof typeof AGENT_ICONS]} 
                     {agent.replace('_', ' ')}
@@ -183,7 +187,7 @@ export default function EnterpriseAI() {
           </div>
         </nav>
         <div className="p-4 border-t border-slate-800">
-          <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 text-sm hover:text-white transition w-full p-2 rounded-md hover:bg-slate-800">
+          <button type="button" onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 text-sm hover:text-white transition w-full p-2 rounded-md hover:bg-slate-800">
             <Settings size={18} /> System Settings
           </button>
         </div>
@@ -210,7 +214,7 @@ export default function EnterpriseAI() {
                 <Bot size={40} className="text-blue-600" />
               </div>
               <h2 className="text-2xl font-bold mb-2 text-gray-700">OmniAgent Ready</h2>
-              <p className="text-sm text-center max-w-md">Tanyakan tentang stok gudang, pengembalian dana, atau standar operasional prosedur perusahaan.</p>
+              <p className="text-sm text-center max-w-md">Tanyakan tentang stok gudang, pengembalian dana, atau garansi produk ritel elektronik perusahaan.</p>
             </div>
           ) : (
             <div className="max-w-4xl mx-auto space-y-8">
@@ -225,14 +229,12 @@ export default function EnterpriseAI() {
 
                   <div className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} max-w-[85%] group`}>
                     
-                    {/* NAMA AGENT */}
                     {msg.role === "ai" && (
                       <span className="text-xs text-gray-500 mb-1.5 ml-1 font-semibold flex items-center gap-1.5 uppercase tracking-wide">
                         <Activity size={12} className="text-blue-500"/> {msg.agent || "OmniAgent"}
                       </span>
                     )}
 
-                    {/* RENDER CHAT / EDIT TEXTAREA */}
                     {editingIndex === index ? (
                        <div className="w-full bg-blue-600 p-4 rounded-2xl rounded-tr-sm shadow-sm flex flex-col gap-3 min-w-[300px] sm:min-w-[400px]">
                          <textarea
@@ -243,15 +245,15 @@ export default function EnterpriseAI() {
                            autoFocus
                          />
                          <div className="flex justify-end gap-2">
-                           <button onClick={() => setEditingIndex(null)} className="px-4 py-2 text-xs font-semibold text-blue-100 hover:text-white hover:bg-blue-500 rounded-lg transition">Batal</button>
-                           <button onClick={() => handleEditSubmit(index)} className="px-4 py-2 text-xs font-semibold bg-white text-blue-700 hover:bg-gray-100 rounded-lg transition shadow-sm">Simpan & Kirim</button>
+                           <button type="button" onClick={() => setEditingIndex(null)} className="px-4 py-2 text-xs font-semibold text-blue-100 hover:text-white hover:bg-blue-500 rounded-lg transition">Batal</button>
+                           <button type="button" onClick={() => handleEditSubmit(index)} className="px-4 py-2 text-xs font-semibold bg-white text-blue-700 hover:bg-gray-100 rounded-lg transition shadow-sm">Simpan & Kirim</button>
                          </div>
                        </div>
                     ) : (
                       <div className="relative w-full flex justify-end items-center gap-2">
-                        {/* TOMBOL EDIT PENCIL */}
                         {msg.role === "user" && !isLoading && (
                           <button 
+                            type="button"
                             onClick={() => { setEditingIndex(index); setEditValue(msg.content); }} 
                             className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all" 
                             title="Edit prompt"
@@ -267,7 +269,6 @@ export default function EnterpriseAI() {
                       </div>
                     )}
 
-                    {/* METRICS EVALUATOR UI */}
                     {msg.role === "ai" && msg.metrics && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         <div className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-[10px] font-semibold border border-blue-100">
@@ -298,7 +299,7 @@ export default function EnterpriseAI() {
                   </div>
                   <div className="flex flex-col items-start w-full max-w-md">
                     <span className="text-xs text-blue-600 mb-2 ml-1 font-semibold flex items-center gap-2">
-                      <Activity size={14} className="animate-spin"/> OmniAgent is reasoning...
+                      <Activity size={14} className="animate-spin"/> OmniAgent is generating response...
                     </span>
                     <div className="w-full px-5 py-4 rounded-2xl bg-white border border-gray-200 rounded-tl-sm shadow-sm space-y-3">
                       {WORKFLOW_STEPS.map((step) => (
@@ -330,7 +331,7 @@ export default function EnterpriseAI() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder=" Berikan saya pertanyaan terkait stok gudang, pengembalian dana, atau SOP perusahaan..."
+              placeholder=" Cek pesanan ORD-0120 atau tanya kebijakan garansi laptop..."
               className="w-full pl-6 pr-14 py-4 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-inner text-gray-700"
               disabled={isLoading}
             />
@@ -338,8 +339,6 @@ export default function EnterpriseAI() {
               <Send size={18} className={isLoading ? "animate-pulse" : ""} />
             </button>
           </div>
-
-          {/* DISCLAIMER TEXT - Posisi Center */}
           <div className="text-center mt-3 text-xs text-gray-400 font-medium">
             OmniAgent dapat membuat kesalahan. Harap selalu periksa kembali informasi penting atau hubungi staf manusia.
           </div>
@@ -352,7 +351,7 @@ export default function EnterpriseAI() {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50">
               <h3 className="font-bold text-gray-800 flex items-center gap-2"><Settings size={18}/> System Settings</h3>
-              <button onClick={() => setIsSettingsOpen(false)} className="text-gray-400 hover:text-red-500 transition"><X size={20} /></button>
+              <button type="button" onClick={() => setIsSettingsOpen(false)} className="text-gray-400 hover:text-red-500 transition"><X size={20} /></button>
             </div>
             <form onSubmit={saveSettings} className="p-6 space-y-4">
               <div>
