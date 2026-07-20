@@ -331,7 +331,7 @@ export default function EnterpriseAI() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder=" Cek pesanan ORD-0120 atau tanya kebijakan garansi laptop..."
+              placeholder=" Berikan Saya Pertanyaan..."
               className="w-full pl-6 pr-14 py-4 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-inner text-gray-700"
               disabled={isLoading}
             />
